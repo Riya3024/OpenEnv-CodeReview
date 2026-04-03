@@ -1,0 +1,11 @@
+name: code-review-env
+description: Code review RL environment
+version: 1.0
+
+tasks:
+  - name: syntax_detection
+    difficulty: easy
+  - name: inefficiency_detection
+    difficulty: medium
+  - name: runtime_bug_detection
+    difficulty: hard
