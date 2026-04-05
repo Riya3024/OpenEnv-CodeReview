@@ -28,5 +28,31 @@ TASKS = [
         "difficulty": "hard",
         "code": "def f(x): return x + y",
         "expected": {"bug_type": "undefined_variable", "fix": "define y"}
+    },
+    
+    {
+        "code": "print('Hello World)",
+        "difficulty": "easy",
+        "expected": {
+            "bug_type": "syntax_error",
+            "fix": "close quote"
+        }
+    },
+    {
+        "code": "if x = 5:\n    print(x)",
+        "difficulty": "medium",
+        "expected": {
+            "bug_type": "syntax_error",
+            "fix": "use =="
+        }
+    },
+    {
+        "code": "result = a / b",
+        "difficulty": "hard",
+        "expected": {
+            "bug_type": "division_by_zero",
+            "fix": "check b != 0"
+        }
     }
+
 ]
