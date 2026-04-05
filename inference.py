@@ -1,5 +1,6 @@
 import os
 import requests
+import json
 from openai import OpenAI
 
 API_BASE_URL = os.getenv("API_BASE_URL")
@@ -8,7 +9,7 @@ HF_TOKEN = os.getenv("HF_TOKEN")
 
 client = OpenAI(base_url=API_BASE_URL, api_key=HF_TOKEN)
 
-ENV_URL = "http://localhost:7860"
+ENV_URL = os.getenv("ENV_URL", "http://localhost:7860")
 
 
 def call_llm(code):
@@ -21,7 +22,12 @@ def call_llm(code):
         temperature=0
     )
 
-    return response.choices[0].message.content
+    text = response.choices[0].message.content.strip()
+
+    try:
+        return json.loads(text)
+    except:
+        return {"bug_type": "unknown", "fix": text}
 
 
 def run():
@@ -41,10 +47,10 @@ def run():
         action_output = call_llm(code)
 
         action = {
-    "bug_detected": "yes",
-    "bug_type": action_output.get("bug_type", "unknown"),
-    "fix": action_output.get("fix", "review code")
-}
+            "bug_detected": "yes",
+            "bug_type": action_output.get("bug_type", "unknown"),
+            "fix": action_output.get("fix", "review code")
+        }
 
         result = requests.post(f"{ENV_URL}/step", json=action).json()
 
@@ -54,12 +60,18 @@ def run():
         rewards.append(f"{reward:.2f}")
         total_score += reward
 
-        print(f"[STEP] step={step} action=fix reward={reward:.2f} done={str(done).lower()} error=null")
+        print(
+            f"[STEP] step={step} action={action['bug_type']} "
+            f"reward={reward:.2f} done={str(done).lower()} error=null"
+        )
 
     final_score = total_score / steps
     success = final_score > 0.5
 
-    print(f"[END] success={str(success).lower()} steps={steps} score={final_score:.2f} rewards={','.join(rewards)}")
+    print(
+        f"[END] success={str(success).lower()} steps={steps} "
+        f"score={final_score:.2f} rewards={','.join(rewards)}"
+    )
 
 
 if __name__ == "__main__":
