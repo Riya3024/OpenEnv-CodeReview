@@ -1,0 +1,22 @@
+[project]
+name = "openenv-code-review"
+version = "0.1.0"
+description = "Code Review RL Environment"
+authors = [{name = "Riya"}]
+
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "pydantic",
+    "requests",
+    "python-dotenv",
+    "openai",
+    "openenv-core>=0.2.0"
+]
+
+[project.scripts]
+server = "server.app:main"
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
