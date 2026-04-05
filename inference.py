@@ -41,10 +41,10 @@ def run():
         action_output = call_llm(code)
 
         action = {
-            "bug_detected": "yes",
-            "bug_type": "syntax_error",
-            "fix": "fix applied"
-        }
+    "bug_detected": "yes",
+    "bug_type": action_output.get("bug_type", "unknown"),
+    "fix": action_output.get("fix", "review code")
+}
 
         result = requests.post(f"{ENV_URL}/step", json=action).json()
 
