@@ -1,10 +1,8 @@
 from fastapi import FastAPI
 from env.tasks import TASKS
-from env.grader import grade
 
 app = FastAPI()
 
-# global index for tasks
 task_index = -1
 current_task = None
 
@@ -13,13 +11,13 @@ current_task = None
 def reset():
     global task_index, current_task
 
-    # 🔥 FORCE DIFFERENT TASK EACH TIME
+    # 🔥 cycle tasks
     task_index = (task_index + 1) % len(TASKS)
     current_task = TASKS[task_index]
 
     return {
         "code": current_task["code"],
-        "task_type": current_task["id"],   # 🔥 CRITICAL
+        "task_type": current_task["id"],   # ✅ MUST be unique
         "difficulty": current_task["difficulty"]
     }
 
@@ -39,6 +37,7 @@ def step(action: dict):
     else:
         score = 0.2
 
+    # ✅ strictly between 0 and 1
     score = max(0.01, min(0.99, score))
 
     return {
