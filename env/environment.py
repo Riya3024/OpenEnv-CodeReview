@@ -10,7 +10,7 @@ class CodeEnv:
         self.task = None
 
     def reset(self):
-        # 🔥 FORCE SEQUENTIAL TASKS
+        # sequential tasks (validator-friendly)
         self.index += 1
         if self.index >= len(self.tasks):
             self.index = 0
@@ -19,27 +19,28 @@ class CodeEnv:
 
         return Observation(
             code=self.task["code"],
-            task_type=self.task["id"],   # MUST be unique
+            task_type=self.task["id"],   # IMPORTANT
             difficulty=self.task["difficulty"]
         )
 
     def step(self, action: Action):
-      expected = self.task["expected"]
+        expected = self.task["expected"]
 
-      score = grade(action, expected)
+        score = grade(action, expected)
 
-      reward = max(0.01, min(0.99, score))
+        reward = max(0.01, min(0.99, score))
 
-      return StepResult(
-        observation=Observation(
-            code=self.task["code"],
-            task_type=self.task["id"],
-            difficulty=self.task["difficulty"]
-        ),
-        reward=reward,
-        done=True,
-        info={"task_id": self.task["id"]}
-    )
+        # ❌ DO NOT call reset here
+        return StepResult(
+            observation=Observation(
+                code=self.task["code"],
+                task_type=self.task["id"],
+                difficulty=self.task["difficulty"]
+            ),
+            reward=reward,
+            done=True,
+            info={"task_id": self.task["id"]}
+        )
 
     def state(self):
         return {"num_tasks": len(self.tasks)}
