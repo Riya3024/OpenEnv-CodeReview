@@ -1,58 +1,17 @@
 TASKS = [
     {
-        "difficulty": "easy",
-        "code": "if x = 10:\n print(x)",
-        "expected": {"bug_type": "syntax_error", "fix": "use =="}
+        "code": "def add(a, b): return a + b",
+        "expected": {"bug_type": "none"},
+        "difficulty": "easy"
     },
     {
-        "difficulty": "easy",
-        "code": "print('Hello)",
-        "expected": {"bug_type": "syntax_error", "fix": "close quote"}
+        "code": "def divide(a, b): return a / b",
+        "expected": {"bug_type": "runtime_error"},
+        "difficulty": "medium"
     },
     {
-        "difficulty": "medium",
-        "code": "for i in range(len(arr)):\n print(arr[i])",
-        "expected": {"bug_type": "inefficient_loop", "fix": "use enumerate"}
-    },
-    {
-        "difficulty": "medium",
-        "code": "x = [1,2,3]\nprint(x[5])",
-        "expected": {"bug_type": "index_error", "fix": "check length"}
-    },
-    {
-        "difficulty": "hard",
-        "code": "def divide(a,b): return a/b",
-        "expected": {"bug_type": "division_by_zero", "fix": "check b != 0"}
-    },
-    {
-        "difficulty": "hard",
-        "code": "def f(x): return x + y",
-        "expected": {"bug_type": "undefined_variable", "fix": "define y"}
-    },
-    
-    {
-        "code": "print('Hello World)",
-        "difficulty": "easy",
-        "expected": {
-            "bug_type": "syntax_error",
-            "fix": "close quote"
-        }
-    },
-    {
-        "code": "if x = 5:\n    print(x)",
-        "difficulty": "medium",
-        "expected": {
-            "bug_type": "syntax_error",
-            "fix": "use =="
-        }
-    },
-    {
-        "code": "result = a / b",
-        "difficulty": "hard",
-        "expected": {
-            "bug_type": "division_by_zero",
-            "fix": "check b != 0"
-        }
+        "code": "def process(data): for i in data print(i)",
+        "expected": {"bug_type": "syntax_error"},
+        "difficulty": "hard"
     }
-
 ]

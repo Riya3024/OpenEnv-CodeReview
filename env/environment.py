@@ -3,6 +3,7 @@ from env.tasks import TASKS
 from env.models import Observation, StepResult, Action
 from env.grader import grade
 
+
 class CodeEnv:
     def __init__(self):
         self.task = None
@@ -23,8 +24,10 @@ class CodeEnv:
 
         # reward shaping
         reward = score
-        if score == 0:
-            reward -= 0.2
+
+# penalty for bad answers
+        if score < 0.3:
+         reward -= 0.1
 
         reward = max(0.0, min(1.0, reward))
 
