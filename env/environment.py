@@ -3,40 +3,39 @@ from env.models import Observation, StepResult, Action
 from env.grader import grade
 
 
-
-
 class CodeEnv:
     def __init__(self):
+        self.tasks = TASKS
+        self.index = 0
         self.task = None
 
     def reset(self):
-        import random
-        self.task = random.choice(TASKS)
+        # sequential tasks (IMPORTANT)
+        self.task = self.tasks[self.index]
+        self.index = (self.index + 1) % len(self.tasks)
 
         return Observation(
             code=self.task["code"],
-            task_type="code_review",
+            task_type=self.task["id"],   # UNIQUE TASK ID
             difficulty=self.task["difficulty"]
         )
 
-    def step(self, action):
+    def step(self, action: Action):
         expected = self.task["expected"]
 
         score = grade(action, expected)
-
-        # ✅ STRICT BETWEEN (0,1)
-        score = max(0.01, min(0.99, score))
+        reward = max(0.01, min(0.99, score))
 
         return StepResult(
             observation=Observation(
                 code=self.task["code"],
-                task_type="code_review",
+                task_type=self.task["id"],
                 difficulty=self.task["difficulty"]
             ),
-            reward=score,
+            reward=reward,
             done=True,
-            info={"expected": expected}
+            info={
+                "task_id": self.task["id"],
+                "expected": expected
+            }
         )
-
-    def state(self):
-        return self.task

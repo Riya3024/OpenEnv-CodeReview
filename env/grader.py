@@ -9,5 +9,4 @@ def grade(action, expected):
     else:
         score = 0.2
 
-    # ✅ STRICTLY between 0 and 1
     return max(0.01, min(0.99, score))
