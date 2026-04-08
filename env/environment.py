@@ -10,13 +10,16 @@ class CodeEnv:
         self.task = None
 
     def reset(self):
-        # 🔥 cycle through tasks EVERY reset
-        self.index = (self.index + 1) % len(self.tasks)
+        # 🔥 FORCE SEQUENTIAL TASKS
+        self.index += 1
+        if self.index >= len(self.tasks):
+            self.index = 0
+
         self.task = self.tasks[self.index]
 
         return Observation(
             code=self.task["code"],
-            task_type=self.task["id"],   # MUST be unique per task
+            task_type=self.task["id"],   # MUST be unique
             difficulty=self.task["difficulty"]
         )
 
@@ -25,7 +28,7 @@ class CodeEnv:
 
         score = grade(action, expected)
 
-        # STRICT (0,1)
+        # STRICT RANGE
         reward = max(0.01, min(0.99, score))
 
         return StepResult(
@@ -36,6 +39,4 @@ class CodeEnv:
         )
 
     def state(self):
-        return {
-            "num_tasks": len(self.tasks)
-        }
+        return {"num_tasks": len(self.tasks)}
