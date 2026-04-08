@@ -5,14 +5,19 @@ def grade(action, expected):
 
     score = 0.0
 
-    # correct classification
+    # classification score
     if predicted == correct:
-        score += 0.7
+        score = 0.9
     elif predicted != "unknown":
-        score += 0.3
+        score = 0.5
+    else:
+        score = 0.1
 
-    # reward good fix description
+    # bonus for good fix
     if correct in fix:
-        score += 0.3
+        score += 0.05
 
-    return min(score, 1.0)
+    # ensure STRICT range (0,1)
+    score = max(0.01, min(0.99, score))
+
+    return score

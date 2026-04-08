@@ -25,6 +25,13 @@ class CodeEnv:
         # reward shaping
         reward = score
 
+# small penalty for bad answers
+        if score < 0.3:
+         reward -= 0.05
+
+# STRICT range again
+        reward = max(0.01, min(0.99, reward))
+
 # penalty for bad answers
         if score < 0.3:
          reward -= 0.1
