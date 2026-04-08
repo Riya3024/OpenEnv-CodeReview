@@ -1,43 +1,43 @@
 from fastapi import FastAPI
-from env.tasks import TASKS
+import hashlib
 
 app = FastAPI()
 
-task_index = -1
-current_task = None
+TASKS = [
+    {"id": "easy", "code": "def add(a, b): return a + b", "expected": "none"},
+    {"id": "medium", "code": "def add(a, b): return a - b", "expected": "logical_error"},
+    {"id": "hard", "code": "def add(a, b): return a + b print(a)", "expected": "syntax_error"},
+]
 
 
 @app.post("/reset")
 def reset():
-    global task_index, current_task
+    # 🔥 generate unique task each call
+    key = hashlib.md5().hexdigest()
+    index = int(key, 16) % len(TASKS)
 
-    # 🔥 cycle tasks
-    task_index = (task_index + 1) % len(TASKS)
-    current_task = TASKS[task_index]
+    task = TASKS[index]
 
     return {
-        "code": current_task["code"],
-        "task_type": current_task["id"],   # ✅ MUST be unique
-        "difficulty": current_task["difficulty"]
+        "code": task["code"],
+        "task_type": task["id"],
+        "expected": task["expected"]   # 🔥 CRITICAL
     }
 
 
 @app.post("/step")
 def step(action: dict):
-    global current_task
-
+    # 🔥 expected passed back from reset
+    expected = action.get("expected", "unknown")
     predicted = action.get("bug_type", "unknown")
-    correct = current_task["expected"]["bug_type"]
 
-    # grading
-    if predicted == correct:
+    if predicted == expected:
         score = 0.9
     elif predicted != "unknown":
         score = 0.5
     else:
         score = 0.2
 
-    # ✅ strictly between 0 and 1
     score = max(0.01, min(0.99, score))
 
     return {
