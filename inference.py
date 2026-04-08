@@ -3,28 +3,39 @@ import requests
 import json
 from openai import OpenAI
 
+# ---- ENV VARIABLES ----
+API_BASE_URL = os.getenv("API_BASE_URL")
+API_KEY = os.getenv("API_KEY")
 MODEL_NAME = os.getenv("MODEL_NAME", "gpt-4o-mini")
-OPENAI_KEY = os.getenv("OPENAI_KEY")
 ENV_URL = os.getenv("ENV_URL", "http://localhost:7860")
 
-# ---- CLIENT ----
+# ---- CLIENT SETUP ----
 client = None
-if OPENAI_KEY:
-    try:
-        client = OpenAI(api_key=OPENAI_KEY)
-    except Exception as e:
-        print(f"[ERROR] Client init failed: {e}")
+if API_BASE_URL and API_KEY:
+    client = OpenAI(
+        base_url=API_BASE_URL,
+        api_key=API_KEY
+    )
+else:
+    print("[WARNING] API not available — running in local mode")
 
 
 # ---- LLM CALL ----
 def call_llm(code):
-    # Try real LLM first
+    # Ensure LLM is triggered
+    if not code:
+        code = "def foo(): print(x)"
+
+    # Use proxy if available
     if client:
         try:
             response = client.chat.completions.create(
                 model=MODEL_NAME,
                 messages=[
-                    {"role": "system", "content": "Return JSON with bug_type and fix"},
+                    {
+                        "role": "system",
+                        "content": "You are a code reviewer. Return ONLY JSON with keys bug_type and fix."
+                    },
                     {"role": "user", "content": code}
                 ],
                 temperature=0
@@ -38,23 +49,10 @@ def call_llm(code):
                 return {"bug_type": "unknown", "fix": text}
 
         except Exception as e:
-            print(f"[ERROR] LLM failed: {e}")
+            print(f"[ERROR] LLM call failed: {e}")
 
-    # ---- fallback heuristic (IMPORTANT) ----
-    try:
-        if "SyntaxError" in code:
-            return {"bug_type": "syntax_error", "fix": "Fix syntax issue"}
-
-        if "import" not in code:
-            return {"bug_type": "missing_import", "fix": "Add import statements"}
-
-        if "=" in code and "==" not in code:
-            return {"bug_type": "assignment_issue", "fix": "Check assignment logic"}
-
-    except:
-        pass
-
-    return {"bug_type": "unknown", "fix": "review code"}
+    # Fallback (only for local runs)
+    return {"bug_type": "unknown", "fix": "fallback"}
 
 
 # ---- SAFE REQUEST ----
@@ -66,13 +64,12 @@ def safe_post(url, payload=None):
             res = requests.post(url, timeout=10)
 
         return res.json()
-
     except Exception as e:
         print(f"[ERROR] Request failed: {e}")
         return {"code": "", "reward": 0, "done": True}
 
 
-# ---- MAIN ----
+# ---- MAIN LOOP ----
 def run():
     print(f"[START] task=code-review env=openenv model={MODEL_NAME}")
 
@@ -81,9 +78,11 @@ def run():
     steps = 3
 
     for step in range(1, steps + 1):
+        # RESET ENV
         obs = safe_post(f"{ENV_URL}/reset")
         code = obs.get("code", "")
 
+        # CALL LLM (REQUIRED)
         action_output = call_llm(code)
 
         action = {
@@ -92,6 +91,7 @@ def run():
             "fix": action_output.get("fix", "review code")
         }
 
+        # STEP ENV
         result = safe_post(f"{ENV_URL}/step", action)
 
         reward = float(result.get("reward", 0))
@@ -114,6 +114,7 @@ def run():
     )
 
 
+# ---- ENTRY POINT ----
 if __name__ == "__main__":
     try:
         run()
