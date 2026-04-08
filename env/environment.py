@@ -24,19 +24,22 @@ class CodeEnv:
         )
 
     def step(self, action: Action):
-        expected = self.task["expected"]
+      expected = self.task["expected"]
 
-        score = grade(action, expected)
+      score = grade(action, expected)
 
-        # STRICT RANGE
-        reward = max(0.01, min(0.99, score))
+      reward = max(0.01, min(0.99, score))
 
-        return StepResult(
-            observation=self.reset(),
-            reward=reward,
-            done=True,
-            info={"task_id": self.task["id"]}
-        )
+      return StepResult(
+        observation=Observation(
+            code=self.task["code"],
+            task_type=self.task["id"],
+            difficulty=self.task["difficulty"]
+        ),
+        reward=reward,
+        done=True,
+        info={"task_id": self.task["id"]}
+    )
 
     def state(self):
         return {"num_tasks": len(self.tasks)}
