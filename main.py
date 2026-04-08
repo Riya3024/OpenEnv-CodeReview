@@ -8,11 +8,9 @@ app = FastAPI()
 env = CodeEnv()
 
 
-# ---- RESET ----
 @app.post("/reset")
 def reset():
     obs = env.reset()
-
     return {
         "code": obs.code,
         "task_type": obs.task_type,
@@ -20,11 +18,9 @@ def reset():
     }
 
 
-# ---- STEP ----
 @app.post("/step")
 def step(action: dict):
     action_obj = Action(**action)
-
     result = env.step(action_obj)
 
     return {
@@ -33,16 +29,15 @@ def step(action: dict):
     }
 
 
-# ---- STATE (VERY IMPORTANT) ----
+# 🔥 THIS FIXES YOUR ERROR
 @app.get("/state")
 def state():
     return {
-        "current_task": env.state(),
-        "available_tasks": TASKS   # 🔥 THIS LINE FIXES YOUR ERROR
+        "available_tasks": TASKS,
+        "num_tasks": len(TASKS)
     }
 
 
-# ---- ROOT ----
 @app.get("/")
 def root():
     return {"status": "running"}

@@ -6,13 +6,14 @@ from env.grader import grade
 
 class CodeEnv:
     def __init__(self):
+        self.tasks = TASKS
+        self.task_index = 0
         self.task = None
-        self.task_index = 0   # ✅ NEW
 
     def reset(self):
-        # cycle through tasks instead of random
-        self.task = TASKS[self.task_index]
-        self.task_index = (self.task_index + 1) % len(TASKS)
+        # deterministic cycling
+        self.task = self.tasks[self.task_index]
+        self.task_index = (self.task_index + 1) % len(self.tasks)
 
         return Observation(
             code=self.task["code"],
@@ -25,17 +26,17 @@ class CodeEnv:
 
         score = grade(action, expected)
 
-        reward = max(0.01, min(0.99, score))
+        reward = max(0.01, min(0.99, score))  # STRICT RANGE
 
         return StepResult(
             observation=self.reset(),
             reward=reward,
             done=True,
-            info={"expected": expected}
+            info={"task_id": self.task["id"], "expected": expected}
         )
 
     def state(self):
         return {
-            "current_task": self.task,
-            "total_tasks": len(TASKS)   # ✅ helps validator
+            "tasks": self.tasks,   # 🔥 expose ALL tasks
+            "current_task": self.task
         }
