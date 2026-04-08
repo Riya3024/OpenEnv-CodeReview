@@ -9,8 +9,9 @@ env = CodeEnv()
 
 
 @app.post("/reset")
-def reset():
-    obs = env.reset()
+def reset(task_id: str = None):
+    obs = env.reset(task_id)
+
     return {
         "code": obs.code,
         "task_type": obs.task_type,
@@ -41,3 +42,8 @@ def state():
 @app.get("/")
 def root():
     return {"status": "running"}
+
+
+@app.get("/tasks")
+def list_tasks():
+    return TASKS

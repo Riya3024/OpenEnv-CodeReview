@@ -7,17 +7,19 @@ from env.grader import grade
 class CodeEnv:
     def __init__(self):
         self.tasks = TASKS
-        self.task_index = 0
         self.task = None
 
-    def reset(self):
-        # deterministic cycling
-        self.task = self.tasks[self.task_index]
-        self.task_index = (self.task_index + 1) % len(self.tasks)
+    def reset(self, task_id=None):
+        if task_id:
+            # select specific task
+            self.task = next(t for t in self.tasks if t["id"] == task_id)
+        else:
+            # default fallback
+            self.task = self.tasks[0]
 
         return Observation(
             code=self.task["code"],
-            task_type=self.task["id"],   # MUST be unique
+            task_type=self.task["id"],
             difficulty=self.task["difficulty"]
         )
 
