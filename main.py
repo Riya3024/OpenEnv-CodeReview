@@ -9,9 +9,8 @@ env = CodeEnv()
 
 
 @app.post("/reset")
-def reset(task_id: str = None):
-    obs = env.reset(task_id)
-
+def reset():
+    obs = env.reset()
     return {
         "code": obs.code,
         "task_type": obs.task_type,

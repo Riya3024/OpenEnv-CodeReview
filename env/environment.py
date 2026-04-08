@@ -1,4 +1,3 @@
-import random
 from env.tasks import TASKS
 from env.models import Observation, StepResult, Action
 from env.grader import grade
@@ -7,19 +6,17 @@ from env.grader import grade
 class CodeEnv:
     def __init__(self):
         self.tasks = TASKS
+        self.index = -1
         self.task = None
 
-    def reset(self, task_id=None):
-        if task_id:
-            # select specific task
-            self.task = next(t for t in self.tasks if t["id"] == task_id)
-        else:
-            # default fallback
-            self.task = self.tasks[0]
+    def reset(self):
+        # 🔥 cycle through tasks EVERY reset
+        self.index = (self.index + 1) % len(self.tasks)
+        self.task = self.tasks[self.index]
 
         return Observation(
             code=self.task["code"],
-            task_type=self.task["id"],
+            task_type=self.task["id"],   # MUST be unique per task
             difficulty=self.task["difficulty"]
         )
 
@@ -28,17 +25,17 @@ class CodeEnv:
 
         score = grade(action, expected)
 
-        reward = max(0.01, min(0.99, score))  # STRICT RANGE
+        # STRICT (0,1)
+        reward = max(0.01, min(0.99, score))
 
         return StepResult(
             observation=self.reset(),
             reward=reward,
             done=True,
-            info={"task_id": self.task["id"], "expected": expected}
+            info={"task_id": self.task["id"]}
         )
 
     def state(self):
         return {
-            "tasks": self.tasks,   # 🔥 expose ALL tasks
-            "current_task": self.task
+            "num_tasks": len(self.tasks)
         }
