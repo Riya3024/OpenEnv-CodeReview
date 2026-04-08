@@ -13,7 +13,7 @@ class CodeEnv:
 
         return Observation(
             code=self.task["code"],
-            task_type="code_review",
+            task_type=self.task["id"],   # ✅ FIX 1 (VERY IMPORTANT)
             difficulty=self.task["difficulty"]
         )
 
@@ -25,18 +25,8 @@ class CodeEnv:
         # reward shaping
         reward = score
 
-# small penalty for bad answers
-        if score < 0.3:
-         reward -= 0.05
-
-# STRICT range again
-        reward = max(0.01, min(0.99, reward))
-
-# penalty for bad answers
-        if score < 0.3:
-         reward -= 0.1
-
-        reward = max(0.0, min(1.0, reward))
+        # STRICT RANGE (0,1) — NO ZERO
+        reward = max(0.01, min(0.99, reward))   # ✅ FIX 2
 
         return StepResult(
             observation=self.reset(),
