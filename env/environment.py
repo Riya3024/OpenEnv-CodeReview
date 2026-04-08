@@ -7,13 +7,16 @@ from env.grader import grade
 class CodeEnv:
     def __init__(self):
         self.task = None
+        self.task_index = 0   # ✅ NEW
 
     def reset(self):
-        self.task = random.choice(TASKS)
+        # cycle through tasks instead of random
+        self.task = TASKS[self.task_index]
+        self.task_index = (self.task_index + 1) % len(TASKS)
 
         return Observation(
             code=self.task["code"],
-            task_type=self.task["id"],   # ✅ FIX 1 (VERY IMPORTANT)
+            task_type=self.task["id"],   # MUST be unique
             difficulty=self.task["difficulty"]
         )
 
@@ -22,11 +25,7 @@ class CodeEnv:
 
         score = grade(action, expected)
 
-        # reward shaping
-        reward = score
-
-        # STRICT RANGE (0,1) — NO ZERO
-        reward = max(0.01, min(0.99, reward))   # ✅ FIX 2
+        reward = max(0.01, min(0.99, score))
 
         return StepResult(
             observation=self.reset(),
@@ -36,4 +35,7 @@ class CodeEnv:
         )
 
     def state(self):
-        return self.task
+        return {
+            "current_task": self.task,
+            "total_tasks": len(TASKS)   # ✅ helps validator
+        }
