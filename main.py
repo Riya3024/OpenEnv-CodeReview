@@ -11,6 +11,7 @@ env = CodeEnv()
 def reset():
     obs = env.reset()
 
+    # ✅ IMPORTANT: return dict (NOT object)
     return {
         "code": obs.code,
         "task_type": obs.task_type,
@@ -24,8 +25,8 @@ def step(action: dict):
     result = env.step(action_obj)
 
     return {
-        "reward": result.reward,
-        "done": result.done
+        "reward": float(result.reward),   # ensure float
+        "done": bool(result.done)
     }
 
 

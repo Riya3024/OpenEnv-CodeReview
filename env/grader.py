@@ -7,7 +7,7 @@ def grade(action, expected):
     elif predicted != "unknown":
         score = 0.5
     else:
-        score = 0.1
+        score = 0.2
 
-    # STRICT RANGE (0,1)
+    # ✅ STRICTLY between 0 and 1
     return max(0.01, min(0.99, score))

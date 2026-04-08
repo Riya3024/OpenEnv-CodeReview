@@ -3,44 +3,40 @@ from env.models import Observation, StepResult, Action
 from env.grader import grade
 
 
+
+
 class CodeEnv:
     def __init__(self):
-        self.tasks = TASKS
-        self.index = -1
         self.task = None
 
     def reset(self):
-        # sequential tasks (validator-friendly)
-        self.index += 1
-        if self.index >= len(self.tasks):
-            self.index = 0
-
-        self.task = self.tasks[self.index]
+        import random
+        self.task = random.choice(TASKS)
 
         return Observation(
             code=self.task["code"],
-            task_type=self.task["id"],   # IMPORTANT
+            task_type="code_review",
             difficulty=self.task["difficulty"]
         )
 
-    def step(self, action: Action):
+    def step(self, action):
         expected = self.task["expected"]
 
         score = grade(action, expected)
 
-        reward = max(0.01, min(0.99, score))
+        # ✅ STRICT BETWEEN (0,1)
+        score = max(0.01, min(0.99, score))
 
-        # ❌ DO NOT call reset here
         return StepResult(
             observation=Observation(
                 code=self.task["code"],
-                task_type=self.task["id"],
+                task_type="code_review",
                 difficulty=self.task["difficulty"]
             ),
-            reward=reward,
+            reward=score,
             done=True,
-            info={"task_id": self.task["id"]}
+            info={"expected": expected}
         )
 
     def state(self):
-        return {"num_tasks": len(self.tasks)}
+        return self.task
