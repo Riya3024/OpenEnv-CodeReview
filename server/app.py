@@ -64,6 +64,12 @@ def step(action: dict):
     }
 
 
+
 @app.get("/")
 def root():
     return {"status": "ok"}
+
+
+# 🔥 ADD THIS
+def main():
+    return app
