@@ -88,8 +88,7 @@ def run():
         action = {
             "bug_detected": "yes",
             "bug_type": action_output.get("bug_type", "unknown"),
-            "fix": action_output.get("fix", "review code"),
-            "expected": obs.get("expected")
+            "fix": action_output.get("fix", "review code")
         }
 
         # STEP ENV
