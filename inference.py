@@ -76,10 +76,11 @@ def run():
     rewards = []
     total_score = 0
     steps = 3
+    obs = safe_post(f"{ENV_URL}/reset")
 
     for step in range(1, steps + 1):
-        # RESET ENV
-        obs = safe_post(f"{ENV_URL}/reset")
+        
+       
         code = obs.get("code", "")
 
         # CALL LLM (REQUIRED)
