@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from env.tasks import TASKS
 from env.grader import grade
+import uvicorn
 
 
 app = FastAPI()
