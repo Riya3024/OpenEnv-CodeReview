@@ -1,41 +1,41 @@
 from env.tasks import TASKS
-from env.models import Observation, StepResult, Action
 from env.grader import grade
 
 
 class CodeEnv:
     def __init__(self):
-        self.tasks = TASKS
         self.index = 0
-        self.task = None
 
     def reset(self):
-        # sequential tasks (IMPORTANT)
-        self.task = self.tasks[self.index]
-        self.index = (self.index + 1) % len(self.tasks)
+        self.index = 0
+        task = TASKS[self.index]
 
-        return Observation(
-            code=self.task["code"],
-            task_type=self.task["id"],   # UNIQUE TASK ID
-            difficulty=self.task["difficulty"]
-        )
+        return {
+            "code": task["code"],
+            "task_type": "code_review",
+            "difficulty": task["difficulty"]
+        }
 
-    def step(self, action: Action):
-        expected = self.task["expected"]
+    def step(self, action):
+        task = TASKS[self.index]
 
-        score = grade(action, expected)
-        reward = max(0.01, min(0.99, score))
+        score = grade(action, task["expected"])
 
-        return StepResult(
-            observation=Observation(
-                code=self.task["code"],
-                task_type=self.task["id"],
-                difficulty=self.task["difficulty"]
-            ),
-            reward=reward,
-            done=True,
-            info={
-                "task_id": self.task["id"],
-                "expected": expected
+        self.index += 1
+        done = self.index >= len(TASKS)
+
+        observation = {}
+        if not done:
+            next_task = TASKS[self.index]
+            observation = {
+                "code": next_task["code"],
+                "task_type": "code_review",
+                "difficulty": next_task["difficulty"]
             }
-        )
+
+        return {
+            "observation": observation,
+            "reward": score,
+            "done": done,
+            "info": {}
+        }
