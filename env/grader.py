@@ -1,12 +1,15 @@
 def grade(action, expected):
-    predicted = getattr(action, "bug_type", "unknown")
+    predicted = action.get("bug_type", "unknown")
     correct = expected["bug_type"]
 
+    # ✅ your original logic
     if predicted == correct:
-        score = 0.9
+        reward = 0.9
     elif predicted != "unknown":
-        score = 0.5
+        reward = 0.5
     else:
-        score = 0.2
+        reward = 0.2
 
-    return max(0.01, min(0.99, score))
+    reward = max(0.01, min(0.99, reward))
+
+    return reward

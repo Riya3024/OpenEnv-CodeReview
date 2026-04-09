@@ -1,12 +1,8 @@
 from fastapi import FastAPI
+from env.tasks import TASKS
+from env.grader import grade
 
 app = FastAPI()
-
-TASKS = [
-    {"code": "def add(a, b): return a + b", "expected": "none"},
-    {"code": "def add(a, b): return a - b", "expected": "logical_error"},
-    {"code": "def add(a, b): return a + b print(a)", "expected": "syntax_error"},
-]
 
 index = 0
 
@@ -21,7 +17,7 @@ def reset():
     return {
         "code": task["code"],
         "task_type": "code_review",
-        "difficulty": "medium"
+        "difficulty": task["difficulty"]
     }
 
 
@@ -31,17 +27,8 @@ def step(action: dict):
 
     task = TASKS[index]
 
-    predicted = action.get("bug_type", "unknown")
-    correct = task["expected"]
-
-    if predicted == correct:
-        score = 0.9
-    elif predicted != "unknown":
-        score = 0.5
-    else:
-        score = 0.2
-
-    score = max(0.01, min(0.99, score))
+    # ✅ use grader (REQUIRED)
+    reward = grade(action, task["expected"])
 
     index += 1
     done = index >= len(TASKS)
@@ -51,14 +38,14 @@ def step(action: dict):
         observation = {
             "code": next_task["code"],
             "task_type": "code_review",
-            "difficulty": "medium"
+            "difficulty": next_task["difficulty"]
         }
     else:
         observation = {}
 
     return {
         "observation": observation,
-        "reward": float(score),
+        "reward": reward,
         "done": done,
         "info": {}
     }
@@ -69,9 +56,9 @@ def root():
     return {"status": "ok"}
 
 
-# 🔥 ADD THIS
 def main():
     return app
+
 
 if __name__ == "__main__":
     main()

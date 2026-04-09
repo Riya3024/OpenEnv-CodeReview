@@ -1,3 +1,12 @@
-name: code-review-env
-description: Code review RL environment
-entrypoint: server.app:app
+tasks:
+  - id: task_easy
+    description: Detect bug type in simple code
+    grader: env.grader:grade
+
+  - id: task_medium
+    description: Detect bug type in medium code
+    grader: env.grader:grade
+
+  - id: task_hard
+    description: Detect bug type in complex code
+    grader: env.grader:grade

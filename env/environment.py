@@ -19,6 +19,7 @@ class CodeEnv:
     def step(self, action):
         task = TASKS[self.index]
 
+        # ✅ use grader
         score = grade(action, task["expected"])
 
         self.index += 1
