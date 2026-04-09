@@ -1,13 +1,11 @@
 from fastapi import FastAPI
 from env.tasks import TASKS
 from env.grader import grade
-import uvicorn
-from openenv.fastapi import attach_openenv_routes 
+
 
 app = FastAPI()
 
-# attach OpenEnv routes (IMPORTANT)
-attach_openenv_routes(app)
+
 
 index = 0
 
