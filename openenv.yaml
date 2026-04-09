@@ -1,20 +1,26 @@
 version: 1
 
 env:
-  entrypoint: server.app:app
+  entrypoint: env:get_env
 
 tasks:
   - id: task_easy
     type: code_review
     difficulty: easy
-    grader: env.grader:grade
+    grader:
+      type: python
+      entrypoint: env.grader:grade
 
   - id: task_medium
     type: code_review
     difficulty: medium
-    grader: env.grader:grade
+    grader:
+      type: python
+      entrypoint: env.grader:grade
 
   - id: task_hard
     type: code_review
     difficulty: hard
-    grader: env.grader:grade
+    grader:
+      type: python
+      entrypoint: env.grader:grade
