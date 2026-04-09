@@ -64,7 +64,6 @@ def step(action: dict):
     }
 
 
-
 @app.get("/")
 def root():
     return {"status": "ok"}
@@ -73,3 +72,6 @@ def root():
 # 🔥 ADD THIS
 def main():
     return app
+
+if __name__ == "__main__":
+    main()
