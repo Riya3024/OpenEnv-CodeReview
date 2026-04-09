@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from env.tasks import TASKS
 from env.grader import grade
+import uvicorn
 
 app = FastAPI()
 
@@ -26,8 +27,6 @@ def step(action: dict):
     global index
 
     task = TASKS[index]
-
-    # ✅ use grader (REQUIRED)
     reward = grade(action, task["expected"])
 
     index += 1
@@ -55,10 +54,8 @@ def step(action: dict):
 def root():
     return {"status": "ok"}
 
-
 def main():
     return app
 
-
 if __name__ == "__main__":
-    main()
+    uvicorn.run(app, host="0.0.0.0", port=7860)
