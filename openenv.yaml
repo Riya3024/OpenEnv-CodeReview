@@ -5,10 +5,13 @@ env:
 
 tasks:
   - id: task_easy
+    type: code_review
     grader: env.grader:grade
 
   - id: task_medium
+    type: code_review
     grader: env.grader:grade
 
   - id: task_hard
+    type: code_review
     grader: env.grader:grade
