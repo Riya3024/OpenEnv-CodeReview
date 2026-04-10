@@ -26,8 +26,11 @@ def step(action: dict):
 
     task = TASKS[index]
 
-    # USE GRADER (THIS IS THE FIX)
-    reward = grade(action, task["expected"])
+    # INLINE GRADING (IMPORTANT)
+    predicted = action.get("bug_type", "unknown")
+    correct = task["expected"]["bug_type"]
+
+    reward = 0.9 if predicted == correct else 0.1
 
     index += 1
     done = index >= len(TASKS)
