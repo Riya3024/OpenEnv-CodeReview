@@ -1,18 +1,17 @@
 def grade(action: dict, expected: dict) -> float:
-    # 1. Robustness: Handle cases where action might be None or not a dict
+    # 1. Handle missing/bad input
     if not isinstance(action, dict):
-        return 0.0
-    
-    # 2. Case-insensitive matching
+        return 0.01 # Minimal positive score
+        
     predicted = str(action.get("bug_type", "")).lower().strip()
     correct = str(expected.get("bug_type", "")).lower().strip()
     
-    # 3. Scoring Logic
+    # 2. Logic with "Strictly between 0 and 1" clamping
     if predicted == correct and correct != "":
-        return 1.0
-    
-    # 4. Partial Credit (Crucial for "Meaningful Reward" criteria)
+        score = 0.95  # Not 1.0
     elif predicted in ["syntax", "logic", "security"]:
-        return 0.3  # Gave a valid category, but the wrong one
+        score = 0.40  # Partial credit
+    else:
+        score = 0.05  # Not 0.0
         
-    return 0.0
+    return score

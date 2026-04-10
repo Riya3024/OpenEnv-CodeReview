@@ -1,14 +1,13 @@
-# openenv.yaml
 tasks:
   - id: "task_easy"
-    name: "Basic Syntax Review"
+    name: "Syntax Task"
     difficulty: "easy"
     grader_class: "env.grader.grade"
   - id: "task_medium"
-    name: "Logic Error Identification"
+    name: "Logic Task"
     difficulty: "medium"
     grader_class: "env.grader.grade"
   - id: "task_hard"
-    name: "Security Vulnerability Audit"
+    name: "Security Task"
     difficulty: "hard"
     grader_class: "env.grader.grade"
