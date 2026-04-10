@@ -20,17 +20,19 @@ def reset():
         "difficulty": task["difficulty"]
     }
 
+       
+
 @app.post("/step")
 def step(action: dict):
     global index
 
     task = TASKS[index]
 
-    # INLINE GRADING (IMPORTANT)
     predicted = action.get("bug_type", "unknown")
-    correct = task["expected"]["bug_type"]
+    correct = task.get("expected", {}).get("bug_type", "unknown")
 
-    reward = 0.9 if predicted == correct else 0.1
+    reward = 0.9 if predicted == correct else 0.2
+    reward = max(0.01, min(0.99, reward))
 
     index += 1
     done = index >= len(TASKS)
@@ -51,8 +53,6 @@ def step(action: dict):
         "done": done,
         "info": {}
     }
-
-
 @app.get("/")
 def root():
     return {"status": "ok"}
