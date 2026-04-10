@@ -1,12 +1,7 @@
 from fastapi import FastAPI
 from env.tasks import TASKS
-from env.grader import grade
 import uvicorn
-
-
 app = FastAPI()
-
-
 
 index = 0
 
@@ -30,7 +25,12 @@ def step(action: dict):
     global index
 
     task = TASKS[index]
-    reward = grade(action, task["expected"])
+
+    predicted = action.get("bug_type", "unknown")
+    correct = task["expected"]["bug_type"]
+
+    # dynamic reward (IMPORTANT)
+    reward = 0.9 if predicted == correct else 0.1
 
     index += 1
     done = index >= len(TASKS)
@@ -60,5 +60,7 @@ def root():
 def main():
     return app
 
+
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=7860)
+    import uvicorn
+    uvicorn.run("server.app:app", host="0.0.0.0", port=7860)
