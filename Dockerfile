@@ -4,4 +4,5 @@ COPY . .
 RUN pip install fastapi uvicorn requests openai python-multipart
 EXPOSE 7860
 # This starts the environment server
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "7860"]
+# We point to server/app.py using dot notation: folder.filename:variable
+CMD ["uvicorn", "server.app:app", "--host", "0.0.0.0", "--port", "7860"]
