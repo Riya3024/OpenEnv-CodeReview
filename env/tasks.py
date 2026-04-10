@@ -1,17 +1,20 @@
 TASKS = [
     {
-        "code": "def add(a, b): return a + b",
-        "expected": {"bug_type": "none"},
-        "difficulty": "easy"
+        "id": "task_easy",
+        "code": "def hello(): print('Missing quote)",
+        "difficulty": "easy",
+        "expected": {"bug_type": "syntax"}
     },
     {
-        "code": "def add(a, b): return a - b",
-        "expected": {"bug_type": "logical_error"},
-        "difficulty": "medium"
+        "id": "task_medium",
+        "code": "def find_max(numbers): return min(numbers)",
+        "difficulty": "medium",
+        "expected": {"bug_type": "logic"}
     },
     {
-        "code": "def add(a, b): return a + b print(a)",
-        "expected": {"bug_type": "syntax_error"},
-        "difficulty": "hard"
+        "id": "task_hard",
+        "code": "query = f'SELECT * FROM users WHERE id={user_input}'",
+        "difficulty": "hard",
+        "expected": {"bug_type": "security"}
     }
 ]

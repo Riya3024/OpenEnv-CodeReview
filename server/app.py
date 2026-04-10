@@ -1,80 +1,50 @@
-from fastapi import FastAPI
+
+import os
+from fastapi import FastAPI, Request
 from env.tasks import TASKS
+from env.grader import grade
 
 app = FastAPI()
-
-index = 0
-
+current_task_index = 0
 
 @app.post("/reset")
-def reset():
-    global index
-    index = 0
-
-    task = TASKS[index]
-
+async def reset(request: Request = None):
+    global current_task_index
+    current_task_index = 0
+    task = TASKS[current_task_index]
     return {
-        "code": task["code"],
-        "task_type": "code_review",
-        "difficulty": task["difficulty"]
+        "observation": {
+            "code": task["code"],
+            "difficulty": task["difficulty"]
+        }
     }
-
 
 @app.post("/step")
-def step(action: dict):
-    global index
+async def step(action: dict):
+    global current_task_index
+    if current_task_index >= len(TASKS):
+        return {"observation": {}, "reward": 0.0, "done": True}
 
-    # ✅ Safety check (prevents crash)
-    if index >= len(TASKS):
-        return {
-            "observation": {},
-            "reward": 0.0,
-            "done": True,
-            "info": {}
-        }
-
-    task = TASKS[index]
-
-    # ✅ Safe extraction
-    predicted = action.get("bug_type", "unknown") or "unknown"
-    correct = task.get("expected", {}).get("bug_type", "unknown")
-
-    # ✅ Reward logic (dynamic + validator-friendly)
-    if predicted == correct:
-        reward = 0.9
-    elif predicted != "unknown":
-        reward = 0.5
-    else:
-        reward = 0.2
-
-    # ✅ Clamp reward (IMPORTANT)
-    reward = max(0.01, min(0.99, reward))
-
-    # Move to next task
-    index += 1
-    done = index >= len(TASKS)
-
-    # Next observation
+    task = TASKS[current_task_index]
+    reward = float(grade(action, task["expected"]))
+    
+    current_task_index += 1
+    done = current_task_index >= len(TASKS)
+    
+    obs = {}
     if not done:
-        next_task = TASKS[index]
-        observation = {
-            "code": next_task["code"],
-            "task_type": "code_review",
-            "difficulty": next_task["difficulty"]
-        }
-    else:
-        observation = {}
+        next_t = TASKS[current_task_index]
+        obs = {"code": next_t["code"], "difficulty": next_t["difficulty"]}
 
     return {
-        "observation": observation,
+        "observation": obs,
         "reward": reward,
         "done": done,
-        "info": {}
+        "info": {"task_id": task["id"]}
     }
 
-
 @app.get("/")
-def root():
+def health():
     return {"status": "ok"}
 
 def main():

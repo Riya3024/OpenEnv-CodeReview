@@ -1,7 +1,6 @@
 from env.tasks import TASKS
 from env.grader import grade
 
-
 class CodeEnv:
     def __init__(self):
         self.index = 0
@@ -9,21 +8,24 @@ class CodeEnv:
     def reset(self):
         self.index = 0
         task = TASKS[self.index]
-
         return {
-            "code": task["code"],
-            "task_type": "code_review",
-            "difficulty": task["difficulty"]
+            "observation": {
+                "code": task["code"],
+                "task_type": "code_review",
+                "difficulty": task["difficulty"]
+            }
         }
 
     def step(self, action):
-        task = TASKS[self.index]
+        if self.index >= len(TASKS):
+            return {"observation": {}, "reward": 0.0, "done": True, "info": {}}
 
-        # ✅ use grader
-        score = grade(action, task["expected"])
+        task = TASKS[self.index]
+        # Ensure action is a dict and score is a float
+        score = float(grade(action, task["expected"]))
 
         self.index += 1
-        done = self.index >= len(TASKS)
+        done = bool(self.index >= len(TASKS))
 
         observation = {}
         if not done:
@@ -38,5 +40,5 @@ class CodeEnv:
             "observation": observation,
             "reward": score,
             "done": done,
-            "info": {}
+            "info": {"task_id": task["id"]}
         }

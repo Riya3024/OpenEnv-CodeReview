@@ -1,9 +1,15 @@
-version: 1
-
-env:
-  entrypoint: server.app:app
-
+name: "OpenEnv-CodeReview"
+version: "1.0.0"
 tasks:
-  - id: task_easy
-  - id: task_medium
-  - id: task_hard
+  - id: "task_easy"
+    name: "Syntax Check"
+    difficulty: "easy"
+    grader_class: "env.grader.grade"
+  - id: "task_medium"
+    name: "Logic Error"
+    difficulty: "medium"
+    grader_class: "env.grader.grade"
+  - id: "task_hard"
+    name: "Security Audit"
+    difficulty: "hard"
+    grader_class: "env.grader.grade"
