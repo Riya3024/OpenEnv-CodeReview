@@ -1,6 +1,4 @@
-import os
 from fastapi import FastAPI, Request
-# Important: These imports work if 'env' is in the root
 from env.tasks import TASKS
 from env.grader import grade
 
@@ -8,7 +6,7 @@ app = FastAPI()
 current_task_index = 0
 
 @app.post("/reset")
-async def reset(request: Request = None):
+async def reset(payload: dict = None):
     global current_task_index
     current_task_index = 0
     task = TASKS[current_task_index]
@@ -23,7 +21,6 @@ async def reset(request: Request = None):
 @app.post("/step")
 async def step(request: Request):
     global current_task_index
-    
     try:
         action = await request.json()
     except:
@@ -33,10 +30,7 @@ async def step(request: Request):
         return {"observation": {}, "reward": 0.05, "done": True}
 
     task = TASKS[current_task_index]
-    
-    # Calculate and clamp reward strictly between (0, 1)
-    raw_reward = grade(action, task["expected"])
-    reward = max(0.01, min(0.99, float(raw_reward)))
+    reward = float(grade(action, task["expected"]))
     
     current_task_index += 1
     done = current_task_index >= len(TASKS)
@@ -46,12 +40,7 @@ async def step(request: Request):
         next_t = TASKS[current_task_index]
         obs = {"code": next_t["code"], "difficulty": next_t["difficulty"], "task_id": next_t["id"]}
 
-    return {
-        "observation": obs,
-        "reward": reward,
-        "done": done,
-        "info": {"task_id": task["id"]}
-    }
+    return {"observation": obs, "reward": reward, "done": done, "info": {"task_id": task["id"]}}
 
 @app.get("/")
 def health():

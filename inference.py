@@ -70,62 +70,35 @@ def safe_post(url, payload=None):
 
 
 # ---- MAIN LOOP ----
+
+
 def run():
-    # 1. Start Log must be JSON
-    start_log = {
-        "task": "code-review",
-        "env": "openenv",
-        "model": MODEL_NAME
-    }
-    print(f"[START] {json.dumps(start_log)}")
-
-    # We need to loop through 3 distinct tasks to satisfy the "3 tasks" requirement
-    task_ids = ["easy_review", "medium_review", "hard_review"]
+    print(f"[START] {json.dumps({'task': 'code-review', 'env': 'openenv', 'model': MODEL_NAME})}")
+    
+    res = requests.post(f"{ENV_URL}/reset").json()
+    obs = res.get("observation", {})
     all_rewards = []
-    total_score = 0
     
-
-
-    for task_id in task_ids:
-        # Reset 
-        res = safe_post(f"{ENV_URL}/reset", {"task_id": task_id})
-        # Extract correctly from the "observation" key
-        obs = res.get("observation", {})
-        code = obs.get("code", "") 
-
-        # CALL LLM
-        action_output = call_llm(code)
-        action = {
-            "bug_type": action_output.get("bug_type", "unknown"),
-            "fix": action_output.get("fix", "review code")
-        }
-
-        # STEP ENV
-        result = safe_post(f"{ENV_URL}/step", action)
-        reward = float(result.get("reward", 0))
-        done = result.get("done", True)
+    for i in range(3):
+        code = obs.get("code", "")
+        prompt = f"Identify bug type (syntax/logic/security): {code}. Return ONLY JSON: {{\"bug_type\": \"...\"}}"
         
+        resp = client.chat.completions.create(model=MODEL_NAME, messages=[{"role": "user", "content": prompt}])
+        try:
+            action = json.loads(resp.choices[0].message.content)
+        except:
+            action = {"bug_type": "unknown"}
+
+        reply = requests.post(f"{ENV_URL}/step", json=action).json()
+        reward = reply.get("reward", 0.05)
         all_rewards.append(reward)
-        total_score += reward
+        
+        print(f"[STEP] {json.dumps({'step': i+1, 'action': action.get('bug_type'), 'reward': reward, 'done': reply.get('done')})}")
+        if reply.get("done"): break
+        obs = reply.get("observation", {})
 
-        # STEP LOG
-        step_log = {
-            "step": task_ids.index(task_id) + 1,
-            "action": action['bug_type'],
-            "reward": reward,
-            "done": done,
-            "error": None
-        }
-        print(f"[STEP] {json.dumps(step_log)}")
-        
-        # Prepare next observation if not done
-        obs = result.get("observation", {})
-    
-        
-# ---- ENTRY POINT ----
+    score = sum(all_rewards) / 3
+    print(f"[END] {json.dumps({'success': score > 0.5, 'score': round(score, 2), 'rewards': all_rewards})}")
+
 if __name__ == "__main__":
-    try:
-        run()
-    except Exception as e:
-        print(f"[FATAL ERROR] {e}")
-        print("[END] success=false steps=0 score=0.00 rewards=0,0,0")
+    run()
