@@ -15,7 +15,8 @@ async def reset(request: Request = None):
     return {
         "observation": {
             "code": task["code"],
-            "difficulty": task["difficulty"]
+            "difficulty": task["difficulty"],
+            "task_id": task["id"]
         }
     }
 

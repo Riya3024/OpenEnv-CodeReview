@@ -84,15 +84,18 @@ def run():
     all_rewards = []
     total_score = 0
     
+
+
     for task_id in task_ids:
-        # Reset with specific task_id
-        obs = safe_post(f"{ENV_URL}/reset", {"task_id": task_id})
-        code = obs.get("code", "")
+        # Reset 
+        res = safe_post(f"{ENV_URL}/reset", {"task_id": task_id})
+        # Extract correctly from the "observation" key
+        obs = res.get("observation", {})
+        code = obs.get("code", "") 
 
         # CALL LLM
         action_output = call_llm(code)
         action = {
-            "bug_detected": "yes",
             "bug_type": action_output.get("bug_type", "unknown"),
             "fix": action_output.get("fix", "review code")
         }
@@ -105,7 +108,7 @@ def run():
         all_rewards.append(reward)
         total_score += reward
 
-        # 2. Step Log must be JSON
+        # STEP LOG
         step_log = {
             "step": task_ids.index(task_id) + 1,
             "action": action['bug_type'],
@@ -114,19 +117,14 @@ def run():
             "error": None
         }
         print(f"[STEP] {json.dumps(step_log)}")
+        
+        # Prepare next observation if not done
+        obs = result.get("observation", {})
+    
+        
+        
 
-    # Final calculation
-    final_score = total_score / len(task_ids)
-    success = final_score >= 0.5
-
-    # 3. End Log must be JSON
-    end_log = {
-        "success": success,
-        "steps": len(task_ids),
-        "score": round(final_score, 2),
-        "rewards": all_rewards
-    }
-    print(f"[END] {json.dumps(end_log)}")
+  
 
 
       
