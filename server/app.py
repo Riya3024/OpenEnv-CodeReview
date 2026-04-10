@@ -10,13 +10,7 @@ async def reset(payload: dict = None):
     global current_task_index
     current_task_index = 0
     task = TASKS[current_task_index]
-    return {
-        "observation": {
-            "code": task["code"],
-            "difficulty": task["difficulty"],
-            "task_id": task["id"]
-        }
-    }
+    return {"observation": {"code": task["code"], "difficulty": task["difficulty"], "task_id": task["id"]}}
 
 @app.post("/step")
 async def step(request: Request):
