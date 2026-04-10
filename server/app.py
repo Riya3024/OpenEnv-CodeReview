@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from env.tasks import TASKS
 from env.grader import grade
-import uvicorn
+
 app = FastAPI()
 
 index = 0
@@ -20,17 +20,13 @@ def reset():
         "difficulty": task["difficulty"]
     }
 
-
 @app.post("/step")
 def step(action: dict):
     global index
 
     task = TASKS[index]
 
-    predicted = action.get("bug_type", "unknown")
-    correct = task["expected"]["bug_type"]
-
-    # dynamic reward (IMPORTANT)
+    # USE GRADER (THIS IS THE FIX)
     reward = grade(action, task["expected"])
 
     index += 1
@@ -60,7 +56,6 @@ def root():
 
 def main():
     return app
-
 
 if __name__ == "__main__":
     import uvicorn
