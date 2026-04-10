@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from env.tasks import TASKS
+from env.grader import grade
 import uvicorn
 app = FastAPI()
 
@@ -30,7 +31,7 @@ def step(action: dict):
     correct = task["expected"]["bug_type"]
 
     # dynamic reward (IMPORTANT)
-    reward = 0.9 if predicted == correct else 0.1
+    reward = grade(action, task["expected"])
 
     index += 1
     done = index >= len(TASKS)
