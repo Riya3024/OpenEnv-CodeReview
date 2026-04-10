@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from env.tasks import TASKS
-from env.grader import grade
+
 
 app = FastAPI()
 
