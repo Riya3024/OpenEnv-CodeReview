@@ -1,15 +1,17 @@
 def grade(action: dict, expected: dict) -> float:
-    # Handle non-dictionary actions
+    # Ensure action is a dict to prevent crashes
     if not isinstance(action, dict):
-        return 0.01
-        
+        return 0.05
+    
     predicted = str(action.get("bug_type", "")).lower().strip()
     correct = str(expected.get("bug_type", "")).lower().strip()
     
-    # Logic: Strictly between 0 and 1
     if predicted == correct and correct != "":
-        return 0.99  # NOT 1.0
-    elif predicted != "" and predicted != "unknown":
-        return 0.50  # Partial credit
+        # Must be LESS than 1.0
+        return 0.95 
+    elif predicted in ["syntax", "logic", "security"]:
+        # Partial credit for identifying a valid category
+        return 0.45 
     
-    return 0.01  # NOT 0.0
+    # Must be GREATER than 0.0
+    return 0.05
