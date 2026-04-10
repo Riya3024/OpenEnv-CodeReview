@@ -1,3 +1,5 @@
+name: "CodeReviewEnv"
+version: "1.0.0"
 tasks:
   - id: "task_easy"
     name: "Syntax Task"
